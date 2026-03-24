@@ -147,28 +147,17 @@ jobs:
         run: |
           curl -o ecosystem.config.js https://raw.githubusercontent.com/yhxglsa2016/shiroi-deploy-action-BJ/blob/main/pm2/ecosystem.config.js
 
-      - name: copy file via ssh password
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          password: ${{ secrets.PASSWORD }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          source: 'release.zip'
-          target: '/tmp/shiro'
-          debug: true
-
-      - name: copy PM2 config via ssh password
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          password: ${{ secrets.PASSWORD }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          source: 'ecosystem.config.js'
-          target: '/tmp/shiro'
+      - name: Copy files via Native SCP
+        run: |
+          # 1. 安装 sshpass
+          sudo apt-get update && sudo apt-get install -y sshpass
+          
+          # 2. 一次性传输多个文件 (release.zip 和 ecosystem.config.js)
+          # 使用 sshpass + scp 传送到目标目录
+          sshpass -p "${{ secrets.PASSWORD }}" scp -P ${{ secrets.PORT }} \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            release.zip ecosystem.config.js ${{ secrets.USER }}@${{ secrets.HOST }}:/tmp/shiro/
 
       - name: Exec deploy script with SSH
         uses: appleboy/ssh-action@master
