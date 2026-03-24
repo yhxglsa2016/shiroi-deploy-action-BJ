@@ -147,16 +147,15 @@ jobs:
         run: |
           curl -o ecosystem.config.js https://raw.githubusercontent.com/yhxglsa2016/shiroi-deploy-action-BJ/blob/main/pm2/ecosystem.config.js
 
-      - name: Copy files via Native SCP
+      - name: Copy files via Rsync (With Progress)
         run: |
-          # 1. 安装 sshpass
-          sudo apt-get update && sudo apt-get install -y sshpass
+          sudo apt-get update && sudo apt-get install -y sshpass rsync
           
-          # 2. 一次性传输多个文件 (release.zip 和 ecosystem.config.js)
-          # 使用 sshpass + scp 传送到目标目录
-          sshpass -p "${{ secrets.PASSWORD }}" scp -P ${{ secrets.PORT }} \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
+          # --progress: 显示进度条
+          # -h: 以人类可读格式显示大小 (KB/MB)
+          # -e: 指定 SSH 连接参数
+          sshpass -p "${{ secrets.PASSWORD }}" rsync -avh --progress \
+            -e "ssh -p ${{ secrets.PORT }} -o StrictHostKeyChecking=no" \
             release.zip ecosystem.config.js ${{ secrets.USER }}@${{ secrets.HOST }}:/tmp/shiro/
 
       - name: Exec deploy script with SSH
