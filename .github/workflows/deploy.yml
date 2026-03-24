@@ -157,6 +157,7 @@ jobs:
           port: ${{ secrets.PORT }}
           source: 'release.zip'
           target: '/tmp/shiro'
+          debug: true
 
       - name: copy PM2 config via ssh password
         uses: appleboy/scp-action@v0.1.7
