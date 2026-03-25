@@ -147,17 +147,28 @@ jobs:
         run: |
           curl -o ecosystem.config.js https://raw.githubusercontent.com/yhxglsa2016/shiroi-deploy-action-BJ/blob/main/pm2/ecosystem.config.js
 
-      - name: Copy files via Rsync (With Progress)
-        run: |
-          sudo apt-get update && sudo apt-get install -y sshpass rsync
-          
-          # --progress: 显示进度条
-          # -h: 以人类可读格式显示大小 (KB/MB)
-          # -e: 指定 SSH 连接参数
-          sshpass -p "${{ secrets.PASSWORD }}" rsync -avh --progress \
-            -e "ssh -p ${{ secrets.PORT }} -o StrictHostKeyChecking=no" \
-            release.zip ecosystem.config.js ${{ secrets.USER }}@${{ secrets.HOST }}:/tmp/shiro/
+      - name: copy file via ssh password
+        uses: appleboy/scp-action@v0.1.7
+        with:
+            host: ${{ secrets.HOST }}
+            username: ${{ secrets.USER }}
+            password: ${{ secrets.PASSWORD }}
+            key: ${{ secrets.KEY }}
+            port: ${{ secrets.PORT }}
+            source: 'release.zip'
+            target: '/tmp/shiro'
 
+      - name: copy PM2 config via ssh password
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          source: 'ecosystem.config.js'
+          target: '/tmp/shiro'
+          
       - name: Exec deploy script with SSH
         uses: appleboy/ssh-action@master
 
