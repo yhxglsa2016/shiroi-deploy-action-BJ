@@ -145,7 +145,7 @@ jobs:
 
       - name: Download ecosystem.config.js
         run: |
-          curl -o ecosystem.config.js https://raw.githubusercontent.com/yhxglsa2016/shiroi-deploy-action-BJ/blob/main/pm2/ecosystem.config.js
+          curl -o ecosystem.config.js https://raw.githubusercontent.com/yhxglsa2016/shiroi-deploy-action-BJ/main/pm2/ecosystem.config.js
 
       - name: copy file via ssh password
         uses: appleboy/scp-action@v0.1.7
